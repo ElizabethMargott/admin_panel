@@ -5,7 +5,6 @@ import requests
 from .models import User, Note
 
 admin.site.register(User)
-admin.site.register(Note)
 
 class MyAdminSite(admin.AdminSite):
     def index(self, request, extra_context=None):
