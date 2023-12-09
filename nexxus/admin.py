@@ -1,19 +1,33 @@
-# admin.py
 from django.contrib import admin
 from django.shortcuts import render
 import requests
-from .models import User, Note
+from .models import User
+from django.utils import timezone
+from datetime import timedelta
 
-admin.site.register(User)
+# Define tus acciones personalizadas primero
+@admin.action(description='Suspender usuarios seleccionados por 30 días')
+def suspend_users(modeladmin, request, queryset):
+    for user in queryset:
+        user.is_suspended = True
+        user.suspended_until = timezone.now() + timedelta(days=30)
+        user.save()
 
-class MyAdminSite(admin.AdminSite):
-    def index(self, request, extra_context=None):
-        response = requests.get(
-            'http://localhost:8080/api/v1/notes',
-            headers={'Authorization': f'Bearer {request.user.jwt_token}'}
-        )
-        notes = response.json() if response.status_code == 200 else []
-        extra_context = {'notes': notes}
-        return render(request, 'admin/index.html', extra_context)
+@admin.action(description='Levantar suspensión de usuarios seleccionados')
+def unsuspend_users(modeladmin, request, queryset):
+    for user in queryset:
+        user.is_suspended = False
+        user.suspended_until = None
+        user.save()
 
-my_admin_site = MyAdminSite()
+# Define tu clase UserAdmin
+class UserAdmin(admin.ModelAdmin):
+    list_display = ['username', 'email', 'is_suspended', 'suspended_until']
+    actions = [suspend_users, unsuspend_users]
+
+# Comprueba si el modelo User ya está registrado antes de intentar desregistrarlo
+if User in admin.site._registry:
+    admin.site.unregister(User)
+
+# Registra el modelo User con la configuración personalizada de UserAdmin
+admin.site.register(User, UserAdmin)

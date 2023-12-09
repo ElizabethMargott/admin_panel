@@ -4,7 +4,7 @@ import requests
 class MyAuthBackend(BaseBackend):
     
     def authenticate(self, request, username=None, password=None, **kwargs):
-        response = requests.post('https://api-sxm-test.fly.dev/auth/login', data={'username': username, 'password': password})
+        response = requests.post('https://api-sxm-test.fly.dev/api/v1', data={'username': username, 'password': password})
         if response.status_code == 200:
             # ...
             pass
@@ -19,7 +19,7 @@ class MyAuthBackend(BaseBackend):
 
 class JWTAuthenticationBackend(BaseBackend):
     def authenticate(self, request, username=None, password=None):
-        response = requests.post('https://api-sxm-test.fly.dev/auth/login', data={'username': username, 'password': password})
+        response = requests.post('https://api-sxm-test.fly.dev/api/v1', data={'username': username, 'password': password})
         if response.status_code == 200:
             # ...
             pass

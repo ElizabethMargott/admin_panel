@@ -1,6 +1,8 @@
 from django.db import models
 
 class User(models.Model):
+    is_suspended = models.BooleanField(default=False)
+    suspended_until = models.DateTimeField(null=True, blank=True)
     id = models.BigAutoField(primary_key=True)
     avatar_filename = models.CharField(max_length=255, null=True, blank=True)
     email = models.EmailField(max_length=255, unique=True)
